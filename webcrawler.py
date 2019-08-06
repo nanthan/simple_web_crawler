@@ -24,7 +24,7 @@ def dequeue():
     global frontier_q
     current_url = frontier_q[0]
     frontier_q = frontier_q[1:]
-    print(len(frontier_q)+" left in queue")
+    print('{:d} left in queue'.format(len(frontier_q)))
     return current_url
 
 
@@ -94,7 +94,7 @@ for i in range(max_number):
     print('#{:05d} current_url: {:s}'.format(i+1, current_url))
     visited_q.append(current_url)
     raw_html = get_page(current_url)
-    if raw_html != '':
+    if raw_html != '':  # check have body from get_page before process below
         save_file(raw_html, current_url)
         extracted_links = link_parser(raw_html)
         for j in range(len(extracted_links)):
