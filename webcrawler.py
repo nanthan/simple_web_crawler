@@ -30,7 +30,7 @@ def dequeue():
 def get_page(url):
     headers = {
         'User-Agent': 'webcrawler-01',
-        'From': 'thanwa.ji@ku.th'
+        'From': '<contact_email>'
     }
     text = ''
     try:
