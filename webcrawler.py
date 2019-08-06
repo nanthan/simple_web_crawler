@@ -24,6 +24,7 @@ def dequeue():
     global frontier_q
     current_url = frontier_q[0]
     frontier_q = frontier_q[1:]
+    print(len(frontier_q)+" left in queue")
     return current_url
 
 
@@ -69,40 +70,37 @@ def save_file(raw_html, current_url):
     # @param 'exist_ok' is True for no exception if the target directory already exists
     base_path = './html/'
     url_parse = urlparse(current_url)
-    host = base_path + url_parse.netloc
-    path = url_parse.path
+    host = base_path + url_parse[1]  # netloc
+    path = url_parse[2]  # path
     abs_path_file = host + path
-    abs_path = abs_path_file[:abs_path_file.rfind("/")].strip()
-    file_name = abs_path_file[abs_path_file.rfind("/"):].strip()
-    print('abs_path: ', abs_path)
-    print('file_name: ', file_name)
+    abs_path = abs_path_file[:abs_path_file.rfind("/")]
+    file_name = abs_path_file[abs_path_file.rfind("/"):]
     os.makedirs(abs_path, 0o755, exist_ok=True)
 
     # Write content into a file
-    if file_name == '/':
-        abs_file = abs_path + '/index.html'
-    else:
-        abs_file = abs_path_file
-    f = codecs.open(abs_file, 'w', 'utf-8')
+    if file_name == '/':  # when not have a path of a file, suppose that file is index.html
+        abs_path_file = abs_path + '/index.html'
+    f = codecs.open(abs_path_file, 'w', 'utf-8')
     f.write(raw_html)
     f.close()
 
 
 #--- main process ---#
-max_number = 10
+max_number = 10000
 for i in range(max_number):
     if (len(frontier_q) == 0):
         break
     current_url = dequeue()
-    print('#{:04d} current_url: {:s}'.format(i+1, current_url))
+    print('#{:05d} current_url: {:s}'.format(i+1, current_url))
     visited_q.append(current_url)
     raw_html = get_page(current_url)
-    save_file(raw_html, current_url)
-    extracted_links = link_parser(raw_html)
-    for j in range(len(extracted_links)):
-        extracted_links[j] = urljoin(current_url, extracted_links[j])
-    url_ok = []
-    for link in extracted_links:
-        if ('http://' in link or 'https://' in link) and ('ku.ac.th' in link) and ('htm' in link):
-            url_ok.append(link)
-    enqueue(url_ok)
+    if raw_html != '':
+        save_file(raw_html, current_url)
+        extracted_links = link_parser(raw_html)
+        for j in range(len(extracted_links)):
+            extracted_links[j] = urljoin(current_url, extracted_links[j])
+        url_ok = []
+        for link in extracted_links:
+            if ('http://' in link or 'https://' in link) and ('ku.ac.th' in link) and ('htm' in link):
+                url_ok.append(link)
+        enqueue(url_ok)
